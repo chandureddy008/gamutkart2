@@ -30,23 +30,12 @@ pipeline {
                 sh 'docker tag gamutkart-img chandureddy008/chandumachine1-img'
 
                 // Login to Docker Hub
-               
-
-                   withCredentials([string(credentialsId: 'dockerhubpassword1', variable: 'PASSWORD')]) {
-        sh 'docker login -u chandureddy008 -p $PASSWORD'
-
-               
+                withCredentials([string(credentialsId: 'dockerhubpassword', variable: 'PASSWORD')]) {
+                    sh 'docker login -u chandureddy008 -p $PASSWORD'
                 }
-                
-               
 
-stage("Push Image to Docker Hub"){
-sh 'docker push chandureddy008/gamutkart-img:1.0'
-
-}
-
-
-
+                // Push the Docker image to Docker Hub
+                sh 'docker push chandureddy008/gamutkart-img:1.0'
             }
         }
 
@@ -60,4 +49,3 @@ sh 'docker push chandureddy008/gamutkart-img:1.0'
         }
     }
 }
-
