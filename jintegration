@@ -32,7 +32,7 @@ pipeline {
                 // Login to Docker Hub
                
 
-                   withCredentials([string(credentialsId: 'dockerhubpassword', variable: 'PASSWORD')]) {
+                   withCredentials([string(credentialsId: 'dockerhubpassword1', variable: 'PASSWORD')]) {
         sh 'docker login -u chandureddy008 -p $PASSWORD'
 
                
