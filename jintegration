@@ -26,14 +26,27 @@ pipeline {
             steps {
                 // Build the Docker image
                 sh 'docker build -t gamutkart-img .'
-                
+                sh 'docker image list'
+                sh 'docker tag gamutkart-img chandureddy008/chandumachine1-img'
+
                 // Login to Docker Hub
-                withCredentials([usernamePassword(credentialsId: 'chandureddy008', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh "echo \${DOCKER_PASSWORD} | docker login -u \${DOCKER_USERNAME} --password-stdin"
+               
+
+                   withCredentials([string(credentialsId: 'dockerhubpassword', variable: 'PASSWORD')]) {
+        sh 'docker login -u chandureddy008 -p $PASSWORD'
+
+               
                 }
                 
-                // Push the Docker image to Docker Hub
-                sh 'docker push chandureddy008/gamutkart-img'
+               
+
+stage("Push Image to Docker Hub"){
+sh 'docker push chandureddy008/gamutkart-img:1.0'
+
+}
+
+
+
             }
         }
 
