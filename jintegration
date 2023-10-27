@@ -40,11 +40,16 @@ pipeline {
             }
         }
 
+    
         stage('Kubernetes Deployment') {
             steps {
-                script {
-                    def kubectlCmd = "kubectl apply -f kubernetes-deployment.yaml"
-                    sh returnStatus: true, script: kubectlCmd
+                sh 'cp /home/chandu/.jenkins/workspace/gamu1/K8S/kubernetes-deployment.yaml .'
+            }
+
+            script {
+                withCredentials([file(credentialsId: 'kubernetes', variable: 'KUBECONFIG')]) {
+                    sh "kubectl --kubeconfig=$KUBECONFIG apply -f kubernetes-deployment.yaml"
+
                 }
             }
         }
