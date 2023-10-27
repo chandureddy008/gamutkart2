@@ -33,7 +33,7 @@ pipeline {
                 }
                 
                 // Push the Docker image to Docker Hub
-                sh 'docker push gamutkart-img:latest'
+                sh 'docker push chandureddy008/gamutkart-img'
             }
         }
 
