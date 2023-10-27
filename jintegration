@@ -27,7 +27,7 @@ pipeline {
                 // Build the Docker image
                 sh 'docker build -t gamutkart-img .'
                 sh 'docker image list'
-                sh 'docker tag gamutkart-img chandureddy008/chandumachine1-img'
+                sh 'docker tag 7fdeb1cf158d chandureddy008/gamutkart-img:latest'
 
                 // Login to Docker Hub
                 withCredentials([string(credentialsId: 'dockerhubpassword', variable: 'PASSWORD')]) {
