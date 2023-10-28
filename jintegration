@@ -61,13 +61,11 @@ pipeline {
                     sh 'cp /home/chandu/.jenkins/workspace/remo/K8S/kubernetes-deployment.yaml .'
 
                     // Configure the kubeconfig file path and AWS CLI authentication
-withEnv(['KUBECONFIG=~/.kube/config']) {
-                   
+                    withEnv(['KUBECONFIG=/home/chandu/.kube/config']) {
                         sh "aws eks --region eu-north-1 update-kubeconfig --name chanducluster"
 
                         // Apply the Kubernetes deployment
                         sh 'kubectl apply -f kubernetes-deployment.yaml'
-
                     }
                 }
             }
