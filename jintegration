@@ -1,6 +1,11 @@
 pipeline {
     agent any
-
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('YourAWSAccessKeyId')  // Replace with your AWS credentials
+        AWS_SECRET_ACCESS_KEY = credentials('YourAWSSecretAccessKey')  // Replace with your AWS credentials
+        AWS_REGION = 'eu-north-1'  // Set your AWS region here
+        KUBECONFIG = '/home/chandu/.kube/config'  // Update to the correct kubeconfig path
+    }
     stages {
         stage('Clone Repository') {
             steps {
@@ -38,10 +43,30 @@ pipeline {
             }
         }
 
+        stage('AWS Credentials Setup') {
+            steps {
+                script {
+                    // Configure AWS CLI with credentials
+                    sh "aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID"
+                    sh "aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY"
+                    sh "aws configure set default.region $AWS_REGION"
+                }
+            }
+        }
         stage('Kubernetes Deployment') {
             steps {
-                sh 'cp /home/chandu/.jenkins/workspace/gamu1/K8S/kubernetes-deployment.yaml .'
-                sh "KUBECONFIG=/home/chandu/.kube/KUBECONFIG kubectl apply -f kubernetes-deployment.yaml"
+                script {
+                    // Copy your Kubernetes deployment manifest to the Jenkins workspace
+                    sh 'cp /home/chandu/.jenkins/workspace/gamu1/K8S/kubernetes-deployment.yaml .'
+
+                    // Configure the kubeconfig file path and AWS CLI authentication
+                    withEnv(['KUBECONFIG=$KUBECONFIG']) {
+                        sh "aws eks --region $AWS_REGION update-kubeconfig --name chanducluster"
+
+                        // Apply the Kubernetes deployment
+                        sh 'kubectl apply -f kubernetes-deployment.yaml'
+                    }
+                }
             }
         }
     }
