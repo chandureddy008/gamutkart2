@@ -1,75 +1,62 @@
 pipeline {
-    agent any
-    environment {
-        AWS_ACCESS_KEY_ID = credentials('YourAWSAccessKeyId')  // Replace with your AWS credentials
-        AWS_SECRET_ACCESS_KEY = credentials('YourAWSSecretAccessKey')  // Replace with your AWS credentials
-        AWS_REGION = 'eu-north-1'  // Set your AWS region here
-        KUBECONFIG = '/home/chandu/.kube/config'  // Update to the correct kubeconfig path
+  agent any
+  environment {
+    AWS_ACCESS_KEY_ID = credentials('YourAWSAccessKeyId')
+    AWS_SECRET_ACCESS_KEY = credentials('YourAWSSecretAccessKey')
+    AWS_REGION = 'eu-north-1'
+    KUBECONFIG = '/home/chandu/.kube/config'
+  }
+
+  stages {
+    stage('Clone Repository') {
+      steps {
+        checkout scm
+      }
     }
-    stages {
-        stage('Clone Repository') {
-            steps {
-                checkout scm
-            }
-        }
 
-        stage('Build') {
-            steps {
-                sh 'mvn clean install -Dmaven.test.skip=true'
-            }
-        }
-
-        stage('Unit Tests') {
-            steps {
-                sh 'mvn test'
-                junit '**/target/surefire-reports/TEST-*.xml'
-            }
-        }
-
-        stage('Docker Build and Push') {
-            steps {
-                // Build the Docker image
-                sh 'docker build -t gamutkart-img .'
-                sh 'docker image list'
-                sh 'docker tag gamutkart-img chandureddy008/gamutkart-img:latest'
-
-                // Login to Docker Hub
-                withCredentials([string(credentialsId: 'dockerhubpassword', variable: 'DOCKER_PASSWORD')]) {
-                    sh 'docker login -u chandureddy008 -p $DOCKER_PASSWORD'
-                }
-
-                // Push the Docker image to Docker Hub
-                sh 'docker push chandureddy008/gamutkart-img:latest'
-            }
-        }
-
-        stage('AWS Credentials Setup') {
-            steps {
-                script {
-                    // Configure AWS CLI with credentials
-                    sh "aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID"
-                    sh "aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY"
-                    sh "aws configure set default.region $AWS_REGION"
-                }
-            }
-        }
-
-        stage('Kubernetes Deployment') {
-            steps {
-                script {
-                    // Copy your Kubernetes deployment manifest to the Jenkins workspace
-                    sh 'cp /home/chandu/.jenkins/workspace/zen/K8S/kubernetes-deployment.yaml .'
-
-                    // Configure the kubeconfig file path and AWS CLI authentication
-withEnv(['KUBECONFIG=~/.kube/config']) {
-                   
-                        sh "aws eks --region eu-north-1 update-kubeconfig --name chanducluster"
-
-                        // Apply the Kubernetes deployment
-                        sh 'kubectl apply -f kubernetes-deployment.yaml'
-                    }
-                }
-            }
-        }
+    stage('Build') {
+      steps {
+        sh 'mvn clean install -Dmaven.test.skip=true'
+      }
     }
+
+    stage('Unit Tests') {
+      steps {
+        sh 'mvn test'
+        junit '**/target/surefire-reports/TEST-*.xml'
+      }
+    }
+
+    stage('Docker Build and Push') {
+      steps {
+        // Build the Docker image
+        sh 'docker build -t gamutkart-img .'
+        sh 'docker image list'
+        sh 'docker tag gamutkart-img chandureddy008/gamutkart-img:latest'
+
+        // Login to Docker Hub
+        withCredentials([string(credentialsId: 'dockerhubpassword', variable: 'DOCKER_PASSWORD')]) {
+          sh 'docker login -u chandureddy008 -p $DOCKER_PASSWORD'
+        }
+
+        // Push the Docker image to Docker Hub
+        sh 'docker push chandureddy008/gamutkart-img:latest'
+      }
+    }
+
+    stage('Kubernetes Deployment') {
+      steps {
+        // Copy your Kubernetes deployment manifest to the Jenkins workspace
+        sh 'cp /home/chandu/.jenkins/workspace/zen/K8S/kubernetes-deployment.yaml .'
+
+        // Configure the AWS CLI authentication
+        sh "aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID"
+        sh "aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY"
+        sh "aws configure set default.region $AWS_REGION"
+
+        // Apply the Kubernetes deployment
+        sh 'kubectl apply -f kubernetes-deployment.yaml'
+      }
+    }
+  }
 }
