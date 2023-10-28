@@ -41,7 +41,7 @@ pipeline {
         stage('Kubernetes Deployment') {
             steps {
                 sh 'cp /home/chandu/.jenkins/workspace/gamu1/K8S/kubernetes-deployment.yaml .'
-                withCredentials([file(credentialsId: 'kubernetes', variable: 'KUBECONFIG')]) {
+                withCredentials([kubeconfigFile(credentialsId: 'my-kubeconfig', variable: 'KUBECONFIG')]) {
                     sh "kubectl --kubeconfig=$KUBECONFIG apply -f kubernetes-deployment.yaml"
                 }
             }
