@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone-Repo') {
+        stage('Clone Repository') {
             steps {
                 checkout scm
             }
@@ -10,15 +10,14 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn install -Dmaven.test.skip=true'
+                sh 'mvn clean install -Dmaven.test.skip=true'
             }
         }
-		
+
         stage('Unit Tests') {
             steps {
-                sh 'mvn compiler:testCompile'
-                sh 'mvn surefire:test'
-                junit 'target/**/*.xml'
+                sh 'mvn test'
+                junit '**/target/surefire-reports/TEST-*.xml'
             }
         }
 
@@ -27,20 +26,18 @@ pipeline {
                 // Build the Docker image
                 sh 'docker build -t gamutkart-img .'
                 sh 'docker image list'
-                sh 'docker tag 7fdeb1cf158d chandureddy008/gamutkart-img:latest'
+                sh 'docker tag gamutkart-img chandureddy008/gamutkart-img:latest'
 
                 // Login to Docker Hub
-                withCredentials([string(credentialsId: 'dockerhubpassword', variable: 'PASSWORD')]) {
-                    sh 'docker login -u chandureddy008 -p $PASSWORD'
+                withCredentials([string(credentialsId: 'dockerhubpassword', variable: 'DOCKER_PASSWORD')]) {
+                    sh 'docker login -u chandureddy008 -p $DOCKER_PASSWORD'
                 }
 
                 // Push the Docker image to Docker Hub
                 sh 'docker push chandureddy008/gamutkart-img:latest'
-
             }
         }
 
-    
         stage('Kubernetes Deployment') {
             steps {
                 sh 'cp /home/chandu/.jenkins/workspace/gamu1/K8S/kubernetes-deployment.yaml .'
@@ -49,7 +46,6 @@ pipeline {
             script {
                 withCredentials([file(credentialsId: 'kubernetes', variable: 'KUBECONFIG')]) {
                     sh "kubectl --kubeconfig=$KUBECONFIG apply -f kubernetes-deployment.yaml"
-
                 }
             }
         }
