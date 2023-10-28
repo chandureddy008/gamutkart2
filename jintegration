@@ -58,7 +58,7 @@ pipeline {
             steps {
                 script {
                     // Copy your Kubernetes deployment manifest to the Jenkins workspace
-                    sh 'cp /home/chandu/.jenkins/workspace/zen/kubernetes-deployment.yaml .'
+                    sh 'cp /home/chandu/.jenkins/workspace/remo/K8S/kubernetes-deployment.yaml .'
 
                     // Configure the kubeconfig file path and AWS CLI authentication
 withEnv(['KUBECONFIG=~/.kube/config']) {
