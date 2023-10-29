@@ -3,7 +3,7 @@ pipeline {
     environment {
         AWS_ACCESS_KEY_ID = credentials('YourAWSAccessKeyId')  // Replace with your AWS credentials
         AWS_SECRET_ACCESS_KEY = credentials('YourAWSSecretAccessKey')  // Replace with your AWS credentials
-        AWS_REGION = 'eu-north-1'  // Set your AWS region here
+        AWS_REGION = 'us-east-1'  // Set your AWS region here
         KUBECONFIG = '/home/chandu/.kube/config'  // Update to the correct kubeconfig path
     }
     stages {
@@ -62,7 +62,7 @@ pipeline {
 
                     // Configure the kubeconfig file path and AWS CLI authentication
                     withEnv(['KUBECONFIG=/home/chandu/.kube/config']) {
-                        sh "aws eks --region eu-north-1 update-kubeconfig --name chanducluster"
+                        sh "aws eks --region eu-east-1 update-kubeconfig --name chandureddycluster"
 
                         // Apply the Kubernetes deployment
                         sh 'kubectl apply -f kubernetes-deployment.yaml'
