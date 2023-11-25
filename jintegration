@@ -1,7 +1,8 @@
 pipeline {
     agent any
     environment {
-        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_IDAWS_SECRET_ACCESS_KEY')  // Replace with your AWS credentials
+        AWS_ACCESS_KEY_ID = credentials('YourAWSAccessKeyId')  // Replace with your AWS credentials
+        AWS_SECRET_ACCESS_KEY = credentials('YourAWSSecretAccessKey')  // Replace with your AWS credentials
         AWS_REGION = 'us-east-1'  // Set your AWS region here
         KUBECONFIG = '/home/chandu/.kube/config'  // Update to the correct kubeconfig path
     }
